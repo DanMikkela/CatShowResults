@@ -1,0 +1,53 @@
+﻿@model = Viewbag.Cat
+
+    <table width="350">
+        <tr width="100">
+            <td>Number</td>
+            <td>
+                @Html.DisplayFor(model => model.Number)
+            </td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>
+                @Html.DisplayFor(model => model.Name)
+            </td>
+        </tr>
+        <tr>
+            <td>Breed</td>
+            <td>
+                @Html.DisplayFor(model => model.BreedName)
+            </td>
+        </tr>
+        <tr>
+            <td>EMS</td>
+            <td>
+                @Html.DisplayFor(model => model.EMS)
+            </td>
+        </tr>
+        <tr>
+            <td>Sex</td>
+            <td>
+                @Html.DisplayFor(model => model.Sex)
+            </td>
+        </tr>
+        <tr>
+            <td>Born</td>
+            <td>
+                @Html.DisplayFor(model => model.Born)
+            </td>
+        </tr>
+        <tr>
+            <td>Class</td>
+            <td>
+                @Html.DisplayFor(model => model.ClassNr)
+            </td>
+        </tr>
+        <tr>
+            <td>Breed</td>
+            <td>
+                @Html.DisplayFor(model => model.Breed.BreedId)
+            </td>
+        </tr>
+    </table>
+</div>
