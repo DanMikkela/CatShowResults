@@ -1,81 +1,55 @@
-﻿@model IEnumerable<Cat_Show_Results.Models.Cat>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<Cat_Show_Results.Models.Cat>
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
     ViewData["Title"] = "Cats List";
 }
 <h4>Cats List</h4>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (@User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p> 
+}
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Number)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BreedName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EMS)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sex)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Born)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ClassNr)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Breed)
-            </th>
-            <th></th>
+            <th>Number</th>
+            <th>Name</th>
+            <th>EMS</th>
+            <th>Sex</th>
+            <th>Class</th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Number)
+                @item.Number
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @item.Name
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BreedName)
+                @item.EMS
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EMS)
+                @item.Sex
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Sex)
+                @item.ClassNr
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Born)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClassNr)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Breed.BreedId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CatId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CatId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CatId">Delete</a>
-                <a asp-action="Create" asp-controller="Tickets" asp-route-id=@item.CatId>Create Ticket</a>
+@if (SignInManager.IsSignedIn(User))
+        {
+        }
+            <a asp-action="Details" asp-route-id="@item.CatId">Details</a>
+@if (@User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit"       asp-route-id="@item.CatId">Edit</a>
+            <a asp-action="Delete"     asp-route-id="@item.CatId">Delete</a>
+        }
             </td>
         </tr>
 }

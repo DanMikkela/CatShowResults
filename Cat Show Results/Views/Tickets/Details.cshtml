@@ -1,83 +1,63 @@
-﻿@model Cat_Show_Results.Models.Ticket
+﻿@using Microsoft.AspNetCore.Identity
+@model Cat_Show_Results.Models.Ticket
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
     ViewData["Title"] = "Ticket Details";
 }
-
 <h4>Ticket Details</h4>
-
 <div>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Type)
-        </dt>
+        <dt class = "col-sm-2">Cat Number</dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CatNumber)
+        </dd>
+        <dt class = "col-sm-2">Type</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Type)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Head)
-        </dt>
+        <dt class = "col-sm-2">Head</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Head)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Eyes)
-        </dt>
+        <dt class = "col-sm-2">Eyes</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Eyes)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ears)
-        </dt>
+        <dt class = "col-sm-2">Ears</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Ears)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Fur)
-        </dt>
+        <dt class = "col-sm-2">Fur</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Fur)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Tail)
-        </dt>
+        <dt class = "col-sm-2">Tail</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Tail)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Condition)
-        </dt>
+        <dt class = "col-sm-2">Condition</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Condition)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.General)
-        </dt>
+        <dt class = "col-sm-2">General</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.General)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Result)
-        </dt>
+        <dt class = "col-sm-2">Result</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Result)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.JudgeName)
-        </dt>
+        <dt class = "col-sm-2">Judge Name</dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.JudgeName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Cat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Cat.CatId)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.TicketId">Edit</a> |
+@if (SignInManager.IsSignedIn(User))
+    {   <a asp-action="Edit" asp-route-id="@Model.TicketId">Edit&nbsp</a>
+    }
     <a asp-action="Index">Back to List</a>
 </div>

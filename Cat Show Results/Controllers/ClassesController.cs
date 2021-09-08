@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Cat_Show_Results.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cat_Show_Results.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class ClassesController : Controller
     {
         private readonly AppDbContext _context;

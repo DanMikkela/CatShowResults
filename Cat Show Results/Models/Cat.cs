@@ -22,6 +22,7 @@ namespace Cat_Show_Results.Models
         public string ImageUrl { get; set; }
         public int ClassNr { get; set; }
         public bool IsFeatured { get; set; }
+        public int Category {  get; set; }
 
         //
         //  MVC länkningsinformation nedan

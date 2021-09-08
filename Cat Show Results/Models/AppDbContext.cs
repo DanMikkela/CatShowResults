@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Cat_Show_Results.Models;
 
 namespace Cat_Show_Results.Models
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -21,6 +16,8 @@ namespace Cat_Show_Results.Models
         public DbSet<Judge> Judges { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Breed> Breeds { get; set; }
+        public DbSet<Cat_Show_Results.Models.RoleViewModel> RoleViewModel { get; set; }
+        public DbSet<Cat_Show_Results.Models.User> User { get; set; }
 
     }
 

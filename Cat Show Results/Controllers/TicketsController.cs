@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Cat_Show_Results.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace Cat_Show_Results.Controllers
 {
@@ -21,8 +22,6 @@ namespace Cat_Show_Results.Controllers
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
-            //var appDbContext = _context.Tickets.Include(t => t.Cat);
-            //return View(await appDbContext.ToListAsync());
             return View(await _context.Tickets.Include(t => t.Cat).Where(i => !i.HaveResult).ToListAsync());
 
         }
@@ -44,13 +43,18 @@ namespace Cat_Show_Results.Controllers
             }
 
             return View(ticket);
-        }
+}
 
         // GET: Tickets/Create
+        [Authorize(Roles = "Admin")]
+
         public IActionResult Create()
         {
-            ViewData["CatId"] = new SelectList(_context.Cats, "CatId", "CatId");
-            return View();
+            ViewBag.CatId = new SelectList(_context.Cats, "CatId", "Number");
+            ViewBag.JudgeName = new SelectList(_context.Judges, "Name", "Name");
+            Ticket ticket = new Ticket();
+            ticket.TicketId = 0;
+            return View(ticket);
         }
 
         // POST: Tickets/Create
@@ -58,19 +62,28 @@ namespace Cat_Show_Results.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TicketId,Type,Head,Eyes,Ears,Fur,Tail,Condition,General,Result,JudgeName,CatId")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("TicketId,Type,Head,Eyes,Ears,Fur,Tail,Condition,General,Result,HaveResult,JudgeName,CatNumber,CatId")] Ticket ticket)
         {
             if (ModelState.IsValid)
             {
+                var cat = _context.Cats.Find(ticket.CatId);
+                if (cat == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    ticket.CatNumber = cat.Number;
+                }
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CatId"] = new SelectList(_context.Cats, "CatId", "CatId", ticket.CatId);
-            return View(ticket);
+            return RedirectToAction(nameof(Create));
         }
 
         // GET: Tickets/Edit/5
+        [Authorize(Roles = "Admin, Judge")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,27 +96,56 @@ namespace Cat_Show_Results.Controllers
             {
                 return NotFound();
             }
-            ViewData["CatId"] = new SelectList(_context.Cats, "CatId", "CatId", ticket.CatId);
+            //    ViewData["CatId"] = new SelectList(_context.Cats, "CatId", "CatId", ticket.CatId);
+            Cat currentCat = await _context.Cats.FindAsync(ticket.CatId);
+            Class currentClass = await _context.Classes.FindAsync(currentCat.ClassNr);
+            Breed currentBreed  = await _context.Breeds.FindAsync(currentCat.BreedId);
+            ViewBag.Breed = currentBreed.Name;
+            ViewBag.Titel = currentClass.Certificate;
+            ViewBag.Cat = currentCat;
+            ticket.CatNumber = currentCat.Number;
+            ViewBag.LeftBox = "<img alt=Min src='~/Images/Min_logo100.gif' />";
+            List<SelectListItem> certs = new List<SelectListItem>();
+            certs.Add(new SelectListItem("", ""));
+            certs.Add(new SelectListItem(currentClass.Certificate, currentClass.Certificate));
+            certs.Add(new SelectListItem("Ex.1", "Ex.1"));
+            certs.Add(new SelectListItem("Ex.2", "Ex.2"));
+            certs.Add(new SelectListItem("Ex.3", "Ex.3"));
+            certs.Add(new SelectListItem("Ex.4", "Ex.4"));
+            certs.Add(new SelectListItem("Ex.", "Ex."));
+            certs.Add(new SelectListItem("VG", "VG"));
+            ViewData["Certificate"] = certs; 
             return View(ticket);
         }
+
 
         // POST: Tickets/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TicketId,Type,Head,Eyes,Ears,Fur,Tail,Condition,General,Result,JudgeName,CatId")] Ticket ticket)
+        public async Task<IActionResult> Edit(int id, [Bind("TicketId,Type,Head,Eyes,Ears,Fur,Tail,Condition,General,Result,JudgeName,CatNumber,CatId")] Ticket ticket)
         {
+            bool result = false;
+
             if (id != ticket.TicketId)
             {
                 return NotFound();
             }
+            if (ticket.HaveResult)
+            {
+                result = true;
+            }
+            if (ticket.Result != null)
+            {
+                ticket.HaveResult = true;
+            }
+            Judge currentJudge = _context.Judges.Where(t => t.Name == ticket.JudgeName).FirstOrDefault();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    ticket.HaveResult = true;
                     _context.Update(ticket);
                     await _context.SaveChangesAsync();
                 }
@@ -118,13 +160,21 @@ namespace Cat_Show_Results.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                if (result)
+                {
+                    return RedirectToAction("Index", "Results");
+                }
+                else 
+                {
+                    return RedirectToAction("Index", "Judges");
+                }
             }
             ViewData["CatId"] = new SelectList(_context.Cats, "CatId", "CatId", ticket.CatId);
             return View(ticket);
         }
 
         // GET: Tickets/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -144,6 +194,7 @@ namespace Cat_Show_Results.Controllers
         }
 
         // POST: Tickets/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

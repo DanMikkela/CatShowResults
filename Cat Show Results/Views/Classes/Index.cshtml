@@ -4,19 +4,20 @@
     ViewData["Title"] = "Classes List";
 }
 <h4>Classes List</h4>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (@User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <p>
+        <a asp-controller="Systems" asp-action="Index">Back to Admin</a>
+    </p> 
+   }
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ClassNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ClassName)
-            </th>
+            <th>Class Number</th>
+            <th>Class Name</th>
             <th></th>
         </tr>
     </thead>
@@ -30,9 +31,10 @@
                 @Html.DisplayFor(modelItem => item.ClassName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ClassId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ClassId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ClassId">Delete</a>
+                <a asp-action="Edit"    asp-route-id="@item.ClassId">Edit</a>
+@*                <a asp-action="Details" asp-route-id="@item.ClassId">Details</a>*@
+@if (@User.IsInRole("Admin"))
+            {   <a asp-action="Delete"  asp-route-id="@item.ClassId">Delete</a>  }
             </td>
         </tr>
 }

@@ -2,6 +2,7 @@ using Cat_Show_Results.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-//using static Cat_Show_Results.Models.IDomareRepository;
 
 namespace Cat_Show_Results
 {
@@ -29,13 +29,11 @@ namespace Cat_Show_Results
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddScoped<IBreedRepository, BreedRepository>();
-            services.AddScoped<IClassRepository, ClassRepository>();
-            services.AddScoped<ICatRepository, CatRepository>();
-            services.AddScoped<IJudgeRepository, JudgeRepository>();
-            services.AddScoped<ITicketRepository, TicketRepository>();
 
-            services.AddControllersWithViews();
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()   
+                .AddEntityFrameworkStores<AppDbContext>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,13 +54,15 @@ namespace Cat_Show_Results
 
             app.UseRouting();
 
-//            app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }

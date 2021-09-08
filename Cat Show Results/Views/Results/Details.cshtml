@@ -1,4 +1,6 @@
-﻿@model Cat_Show_Results.Models.Ticket
+﻿@using Microsoft.AspNetCore.Identity
+@model Cat_Show_Results.Models.Ticket
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
     ViewData["Title"] = "Result Details";
@@ -78,6 +80,10 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.TicketId">Edit</a> |
+@if (SignInManager.IsSignedIn(User))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.TicketId">Edit</a><div> | </div>
+              }
+
     <a asp-action="Index">Back to List</a>
 </div>

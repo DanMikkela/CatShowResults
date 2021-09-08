@@ -25,6 +25,7 @@ namespace Cat_Show_Results.Models
 
         //  löst kopplad länk till Judge
         public string JudgeName { get; set; }
+        public int CatNumber { get; set; }
 
         //
         //  MVC länkningsinformation nedan

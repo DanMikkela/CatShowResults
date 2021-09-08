@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Cat_Show_Results.Models;
+using Cat_Show_Results.ViewModels;
+using System.Net.Sockets;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cat_Show_Results.Controllers
 {
@@ -21,7 +24,7 @@ namespace Cat_Show_Results.Controllers
         // GET: Cats
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Cats.Include(k => k.Breed);
+            var appDbContext = _context.Cats;
             return View(await appDbContext.ToListAsync());
         }
 
@@ -40,14 +43,20 @@ namespace Cat_Show_Results.Controllers
             {
                 return NotFound();
             }
+            Class currentClass = await _context.Classes.FindAsync(katt.ClassNr);
+            Category currentCategory = await _context.Categories.FindAsync(katt.Category);
+            ViewBag.Category = currentCategory.Name;
+            ViewBag.Class = currentClass;
 
             return View(katt);
         }
 
-        // GET: Cater/Create
+        // GET: Cats/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            ViewData["BreedId"] = new SelectList(_context.Breeds, "BreedId", "BreedId");
+            ViewData["BreedId"] = new SelectList(_context.Breeds, "BreedId", "Name");
+            ViewData["CategoryCode"] = new SelectList(_context.Categories, "Code", "Name");
             return View();
         }
 
@@ -56,7 +65,7 @@ namespace Cat_Show_Results.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CatId,Number,Name,BreedName,EMS,Sex,Born,ImageUrl,ClassNr,BreedId")] Cat cat)
+        public async Task<IActionResult> Create([Bind("CatId,Number,Name,BreedName,EMS,Sex,Born,ImageUrl,ClassNr,BreedId,Category ")] Cat cat)
         {
             if (ModelState.IsValid)
             {
@@ -69,6 +78,8 @@ namespace Cat_Show_Results.Controllers
         }
 
         // GET: Cats/Edit/5
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -90,7 +101,7 @@ namespace Cat_Show_Results.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CatId,Number,Name,BreedName,EMS,Sex,Born,ImageUrl,ClassNr,BreedId")] Cat cat)
+        public async Task<IActionResult> Edit(int id, [Bind("CatId,Number,Name,BreedName,EMS,Sex,Born,ImageUrl,ClassNr,BreedId,Category")] Cat cat)
         {
             if (id != cat.CatId)
             {
@@ -122,6 +133,8 @@ namespace Cat_Show_Results.Controllers
         }
 
         // GET: Cats/Delete/5
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -150,6 +163,7 @@ namespace Cat_Show_Results.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
         // GET: Cats/_Partial/5
         public async Task<IActionResult> _Partial(int? id)
         {
@@ -167,6 +181,36 @@ namespace Cat_Show_Results.Controllers
             }
 
             return View(katt);
+        }
+
+        // GET: CatsToJudge/Judge
+        public async Task<IActionResult> CatsToJudge(int? id)
+        {
+            List<Cat> cats = new List<Cat>();
+            List<Cat> catsTmp = new List<Cat>();
+            Judge currentJudge = _context.Judges.Where(m => m.JudgeId == id).FirstOrDefault();
+            if (currentJudge.Category1) { catsTmp = await _context.Cats.Where(i => i.Category == 1).ToListAsync(); }
+            cats.AddRange(catsTmp);
+            catsTmp.Clear();
+            if (currentJudge.Category2) { catsTmp = await _context.Cats.Where(i => i.Category == 2).ToListAsync(); }
+            cats.AddRange(catsTmp);
+            catsTmp.Clear();
+            if (currentJudge.Category3) { catsTmp = await _context.Cats.Where(i => i.Category == 3).ToListAsync(); }
+            cats.AddRange(catsTmp);
+            catsTmp.Clear();
+            if (currentJudge.Category4) { catsTmp = await _context.Cats.Where(i => i.Category == 4).ToListAsync(); }
+            cats.AddRange(catsTmp);
+            List<int> tickets = new List<int>(cats.Count);
+            for (int i=0; i<cats.Count; i++)
+            {
+                var c = cats[i].CatId;
+                Ticket currentTicket = _context.Tickets.Where( t => t.CatId == c).FirstOrDefault();
+                tickets.Add(currentTicket.TicketId);
+            }
+            ViewBag.Tickets = tickets;
+            //    var appDbContext = _context.Cats.Include(k => k.Breed);
+            //    return View(await appDbContext.ToListAsync());
+            return View(cats);
         }
 
         private bool CatExists(int id)

@@ -21,8 +21,6 @@ namespace Cat_Show_Results.Controllers
         // GET: Results
         public async Task<IActionResult> Index()
         {
-            //var appDbContext = _context.Tickets.Include(t => t.Cat);
-            //var appDbContext = _context.Tickets;
             return View(await _context.Tickets.Where(i => i.HaveResult).ToListAsync());
         }
     }

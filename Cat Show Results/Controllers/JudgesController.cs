@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Cat_Show_Results.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cat_Show_Results.Controllers
 {
+    [Authorize]
     public class JudgesController : Controller
     {
         private readonly AppDbContext _context;
@@ -43,6 +45,7 @@ namespace Cat_Show_Results.Controllers
         }
 
         // GET: Judges/Create
+        [Authorize (Roles="Admin")]
         public IActionResult Create()
         {
             return View();
@@ -65,6 +68,7 @@ namespace Cat_Show_Results.Controllers
         }
 
         // GET: Judges/Edit/5
+        [Authorize (Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -116,6 +120,7 @@ namespace Cat_Show_Results.Controllers
         }
 
         // GET: Judges/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
